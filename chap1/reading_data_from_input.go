@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -27,23 +26,17 @@ func main() {
 
 func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 
-	body, err := ioutil.ReadAll(r.Body)
-
-	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-	}
-
 	var request helloworldRequest
-	err = json.Unmarshal(body, &request)
+	decoder := json.NewDecoder(r.Body)
+
+	err := decoder.Decode(&request)
 
 	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-
 	response := helloworldResponse{Message: "Hello " + request.Name}
 
 	encoder := json.NewEncoder(w)
 	encoder.Encode(response)
-
 }
